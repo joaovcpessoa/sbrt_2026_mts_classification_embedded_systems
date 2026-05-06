@@ -34,6 +34,24 @@ _C_WEIGHT:  dict[int, str]  = {8: 'int8_t',  16: 'int16_t', 32: 'int32_t'}
 _C_BIAS:    dict[int, str]  = {8: 'int32_t', 16: 'int32_t', 32: 'int64_t'}
 _C_ACCUM:   dict[int, str]  = {8: 'int32_t', 16: 'int64_t', 32: 'int64_t'}
 
+# Reproducibility
+def set_global_seed(seed: int) -> None:
+    """Fixa todas as fontes de aleatoriedade para reprodutibilidade total.
+
+    Cobre: Python random, NumPy, PyTorch (CPU e CUDA) e flags de
+    determinismo do cuDNN.
+
+    Args:
+        seed: Valor da semente.
+    """
+    import random
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark     = False
+
 # Configuração centralizada
 @dataclass
 class PipelineConfig:
@@ -42,7 +60,7 @@ class PipelineConfig:
     # Data
     dataset_path: str = r'C:\Users\jvt\Downloads\data\3W'
     selected_col: str = 'T-TPT'
-    target_class: list[int] = field(default_factory=lambda: [1, 2])
+    target_class: list[int] = field(default_factory=lambda: [3, 4])
     train_ratio: float = 0.8
 
     # Windowing
@@ -57,7 +75,7 @@ class PipelineConfig:
 
     # Model
     hidden_sizes: tuple[int, ...] = (32, 16)
-    output_size: int = 3
+    output_size: int = 5
     activation_function: str = 'relu'
     regularization: Optional[str] = None
 
@@ -80,7 +98,7 @@ class PipelineConfig:
     calib_samples: int = 2000
 
     # Visualizações
-    class_names: list[str] = field(default_factory=lambda: ['Class 0', 'Class 1', 'Class 2'])
+    class_names: list[str] = field(default_factory=lambda: ['Normal Operation', 'Flow Instability', 'Severe Slugging'])
 
     # Output
     output_dir: Path = Path(r'/output')
@@ -851,7 +869,26 @@ class Plotter:
     def __init__(self, config: PipelineConfig) -> None:
         self._cfg = config
         self._logger = logging.getLogger(self.__class__.__name__)
- 
+        self._apply_scientific_style()
+
+    @staticmethod
+    def _apply_scientific_style() -> None:
+        """Aplica estilo de artigo científico aos plots matplotlib."""
+        plt.rcParams.update({
+            'font.size':        12,
+            'font.family':      'serif',
+            'axes.titlesize':   13,
+            'axes.labelsize':   12,
+            'xtick.labelsize':  11,
+            'ytick.labelsize':  11,
+            'legend.fontsize':  11,
+            'figure.dpi':       150,
+            'axes.grid':        True,
+            'grid.linestyle':   '--',
+            'grid.alpha':       0.4,
+            'lines.linewidth':  1.5,
+        })
+
     def plot_loss_curves(self, trainer: ModelTrainer) -> Path:
         """Plota as curvas de loss de treino e validação por época.
  
@@ -962,9 +999,7 @@ class Pipeline:
     def step_load_data(self) -> None:
         """Etapa 1: Carregamento, windowing e split do dataset."""
         df = self.data_processor.load_and_window()
-        self.X_train, self.y_train, self.X_test, self.y_test = (
-            self.data_processor.split(df)
-        )
+        self.X_train, self.y_train, self.X_test, self.y_test = (self.data_processor.split(df))
 
     def step_train(self) -> None:
         """Etapa 2: Construção do trainer e treinamento do modelo."""
@@ -1030,13 +1065,13 @@ def main() -> None:
     config = PipelineConfig(
         dataset_path=r'C:\Users\jvt\Downloads\data\3W',
         window_size=1000,
-        random_seed=2026,
-        epochs=20,
+        random_seed=42,
+        epochs=100,
         quantization_bits=[8, 16, 32],
         n_export=10,
         output_dir=Path('./output'),
     )
+    set_global_seed(config.random_seed)
     Pipeline(config).run()
 
-if __name__ == "__main__":
-    main()
+# main()
