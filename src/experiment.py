@@ -431,15 +431,13 @@ class Quantizer:
         Returns:
             Dicionário com pesos quantizados, escalas e multiplicadores.
         """
-        self._logger.info("Quantizando modelo – INT%d", bits)
+        self._logger.info("Quantizando modelo - INT%d", bits)
 
         layer_params = self._get_all_linear_layers(mlp)
         n_layers = len(layer_params)
         s_W = [self._calc_scale(W, bits) for W, _ in layer_params]
 
-        calib_idx = np.random.choice(
-            len(X_calib), size=min(self._cfg.calib_samples, len(X_calib)), replace=False
-        )
+        calib_idx = np.random.choice(len(X_calib), size=min(self._cfg.calib_samples, len(X_calib)), replace=False)
 
         clip_max = 2 ** (bits - 1) - 1
         clip_min = -(2 ** (bits - 1))
@@ -482,7 +480,7 @@ class Quantizer:
             return 10.0 * np.log10(np.mean(orig ** 2) / pn) if pn > 0 else np.inf
 
         errors, snr_vals, rmse_vals = [], [], []
-        for i in calib_idx[:200]:
+        for i in calib_idx[:100]:
             _, lf = self._forward_numpy(mlp, X_calib[i])
             h = np.clip(np.round(X_calib[i] / s_x), clip_min, clip_max).astype(np.int64)
             for l in range(n_layers):
@@ -501,7 +499,7 @@ class Quantizer:
 
         flash_kb = sum(W.nbytes + b.nbytes for W, b in zip(W_q, b_q)) / 1024
         self._logger.info(
-            "INT%d – Divergência FP32 vs INT%d: %.1f%%  |  SNR: %.2f dB  |  "
+            "INT%d - Divergência FP32 vs INT%d: %.1f%%  |  SNR: %.2f dB  |  "
             "RMSE: %.6f  |  Flash: ~%.1f KB",
             bits, bits, np.mean(errors) * 100,
             np.nanmean(snr_vals), np.mean(rmse_vals), flash_kb,
@@ -1074,4 +1072,4 @@ def main() -> None:
     set_global_seed(config.random_seed)
     Pipeline(config).run()
 
-# main()
+main()
