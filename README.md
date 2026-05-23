@@ -350,9 +350,3 @@ const float I_ACTIVE = 0.020;  // Corrente ativa estimada (A)
 const float POWER_W  = VCC * I_ACTIVE;
 // Energia (J) = POWER_W × duração (s)
 ```
-
-## Referências
-
-- **Dataset 3W**: Vargas, R. E. V. et al. *A realistic and public dataset with rare undesirable real events in oil wells*. Journal of Petroleum Science and Engineering, 2019. [GitHub](https://github.com/petrobras/3W)
-- **CodeCarbon**: Courty et al. *CodeCarbon: Estimate and Track Carbon Emissions from Machine Learning Computing*. [GitHub](https://github.com/mlco2/codecarbon)
-- **Quantização de redes neurais**: Jacob, B. et al. *Quantization and Training of Neural Networks for Efficient Integer-Arithmetic-Only Inference*. CVPR 2018.
