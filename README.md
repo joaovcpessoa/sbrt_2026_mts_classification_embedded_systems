@@ -1,4 +1,9 @@
-# Quantized MLP inference in MCU
+# Multivariate Time Series Classification in Resource-Constrained Embedded Systems
+
+**Autores:** João Vítor C. Pessoa, Rafael S. Chaves e Marcello L. R. de Campos
+**Instituição:** Universidade Federal do Rio de Janeiro
+**Publicação:** XLIII Brazilian Symposium on Telecommunications and Signal Processing (SBrT 2026)  
+**Evento:** 29 de setembro a 2 de outubro de 2026, Salvador, BA
 
 ## Sumário
 
