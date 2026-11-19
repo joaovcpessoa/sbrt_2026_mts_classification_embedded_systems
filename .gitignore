@@ -1,0 +1,11 @@
+.claude/
+.pytest_cache
+data/
+ThreeWToolkit/
+output/
+__pycache__/
+token.md
+.pio/
+wokwi_ci/.pio/
+legacy/
+.env
